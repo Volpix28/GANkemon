@@ -30,5 +30,4 @@ class DataTransformer:
             resized_img.save(filename)
 
 
-transformer = DataTransformer()
-transformer.transform_data("transformed_data")
+
