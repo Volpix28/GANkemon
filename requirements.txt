@@ -1,3 +1,6 @@
 datasets
 pillow
 tqdm
+tensorflow
+matplotlib
+numpy
