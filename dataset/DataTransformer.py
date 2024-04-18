@@ -1,6 +1,7 @@
 from PIL.Image import Resampling
 from datasets import load_dataset
 import os
+import glob
 from tqdm import tqdm
 from PIL import Image
 
@@ -13,12 +14,14 @@ class DataTransformer:
 
         dataset = load_dataset(dataset_name, split="train")
 
+        offset = len(glob.glob(output_folder + "*.png"))
+
         for i, example in enumerate(tqdm(dataset, desc="Processing images", unit="images")):
             img = example["image"]
 
             resized_img = self._resize_image(img)
 
-            filename = os.path.join(output_folder, f"pokemon_{i}.png")
+            filename = os.path.join(output_folder, f"pokemon_{i+offset}.png")
             resized_img.save(filename)
 
     def transform_local(self, input_folder, output_folder):
@@ -26,15 +29,17 @@ class DataTransformer:
             os.makedirs(output_folder)
 
         image_files = [f for f in os.listdir(input_folder) if
-                       f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tiff'))]
+                       f.lower().endswith((".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tiff"))]
+
+        offset = len(glob.glob(output_folder + "*.png"))
 
         for i, filename in enumerate(tqdm(image_files, desc="Processing images", unit="images")):
             img_path = os.path.join(input_folder, filename)
-            img = Image.open(img_path).convert('RGBA')
+            img = Image.open(img_path).convert("RGBA")
 
             resized_img = self._resize_image(img)
 
-            output_filename = os.path.join(output_folder, f"transformed_{i}.png")
+            output_filename = os.path.join(output_folder, f"pokemon_{i+offset}.png")
             resized_img.save(output_filename)
 
     def _resize_image(self, image):
