@@ -7,33 +7,44 @@ from PIL import Image
 
 class DataTransformer:
 
-    def __init__(self, output_folder):
-        self.output_folder = output_folder
-        self.dataset = load_dataset("huggan/pokemon", split="train")
+    def transform_remote(self, output_folder, dataset_name="huggan/pokemon"):
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
 
-    def transform_data(self):
-        if not os.path.exists(self.output_folder):
-            os.makedirs(self.output_folder)
+        dataset = load_dataset(dataset_name, split="train")
 
-        for i, example in enumerate(tqdm(self.dataset, desc="Processing images", unit="images")):
+        for i, example in enumerate(tqdm(dataset, desc="Processing images", unit="images")):
             img = example["image"]
 
             resized_img = self._resize_image(img)
 
-            filename = os.path.join(self.output_folder, f"pokemon_{i}.png")
+            filename = os.path.join(output_folder, f"pokemon_{i}.png")
             resized_img.save(filename)
 
-    def _resize_image(self, img):
-        max_dim = max(img.width, img.height)
+    def transform_local(self, input_folder, output_folder):
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
+
+        image_files = [f for f in os.listdir(input_folder) if
+                       f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif', '.tiff'))]
+
+        for i, filename in enumerate(tqdm(image_files, desc="Processing images", unit="images")):
+            img_path = os.path.join(input_folder, filename)
+            img = Image.open(img_path).convert('RGBA')
+
+            resized_img = self._resize_image(img)
+
+            output_filename = os.path.join(output_folder, f"transformed_{i}.png")
+            resized_img.save(output_filename)
+
+    def _resize_image(self, image):
+        max_dim = max(image.width, image.height)
 
         square_img = Image.new("RGB", (max_dim, max_dim), (255, 255, 255))
 
-        offset = ((max_dim - img.width) // 2, (max_dim - img.height) // 2)
-        square_img.paste(img, offset)
+        offset = ((max_dim - image.width) // 2, (max_dim - image.height) // 2)
+        square_img.paste(image, offset)
 
         resized_img = square_img.resize((256, 256), Resampling.LANCZOS)
 
         return resized_img
-
-
-
