@@ -1,3 +1,5 @@
 *.png
 *.pyc
 .DS_Store
+dataset/dataset_schmutz
+dataset/original_cleaned
