@@ -45,11 +45,19 @@ class DataTransformer:
     def _resize_image(self, image):
         max_dim = max(image.width, image.height)
 
-        square_img = Image.new("RGB", (max_dim, max_dim), (255, 255, 255))
+        # Create a new image with the same size as the original image and white background
+        white_img = Image.new("RGBA", (max_dim, max_dim), "WHITE")  # WHITE background
 
-        offset = ((max_dim - image.width) // 2, (max_dim - image.height) // 2)
-        square_img.paste(image, offset)
+        # Paste the original image onto the white image, using the original image's alpha channel as the mask
+        white_img.paste(image, (0, 0), image)
 
-        resized_img = square_img.resize((256, 256), Resampling.LANCZOS)
+        # Convert the image back to RGB
+        rgb_img = white_img.convert("RGB")
+
+        resized_img = rgb_img.resize((256, 256), Image.Resampling.LANCZOS)
 
         return resized_img
+    
+
+transformer = DataTransformer()
+transformer.transform_local("../dataset/all_assets_raw", "../dataset/all_assets/transformed")

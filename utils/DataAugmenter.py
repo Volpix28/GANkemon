@@ -5,7 +5,7 @@ from functools import reduce
 from PIL import Image, ImageEnhance
 from tqdm import tqdm
 
-from utils.add_noise import add_noise
+from add_noise import add_noise
 
 
 class DataAugmenter:
@@ -29,9 +29,10 @@ class DataAugmenter:
 
             # Randomly choose augmentation techniques
             augmentation_functions = [
-                lambda img: img.rotate(random.randint(-20, 20), fillcolor="white"),
+                lambda img: img.rotate(random.randint(-15, 15), fillcolor="white"),
                 # lambda img: ImageEnhance.Brightness(img).enhance(random.uniform(1, 1.25)),
                 # lambda img: ImageEnhance.Contrast(img).enhance(random.uniform(0.75, 1.25)),
+                # lambda img: ImageEnhance.Color(img).enhance(random.uniform(0.75, 1.25)),
             ]
 
             # selected_functions = random.sample(augmentation_functions, 1)
@@ -41,17 +42,17 @@ class DataAugmenter:
             selected_functions = random.sample(augmentation_functions, 1)
             img_two = reduce(lambda x, func: func(x), selected_functions, img_two)
             # img_two = img_two.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
-            img_two = ImageEnhance.Sharpness(img_two).enhance(random.uniform(0.9, 1.1))
+            img_two = ImageEnhance.Sharpness(img_two).enhance(random.uniform(0.8, 1.2))
 
-            img = add_noise(img, (0.05, 0.1))
-            img_two = add_noise(img_two, (0.05, 0.1))
+            img = add_noise(img, (1, 3))
+            img_two = add_noise(img_two, (1, 3))
 
-            output_path = os.path.join(self.output_folder, f"{os.path.splitext(img_file)[0]}_augmented_1.jpg")
-            output_path_two = os.path.join(self.output_folder, f"{os.path.splitext(img_file)[0]}_augmented_2.jpg")
+            output_path = os.path.join(self.output_folder, f"{os.path.splitext(img_file)[0]}_augmented_1.png")
+            output_path_two = os.path.join(self.output_folder, f"{os.path.splitext(img_file)[0]}_augmented_2.png")
 
             img.save(output_path)
             img_two.save(output_path_two)
 
 
-augmenter = DataAugmenter("nested/transformed_data", "nested/augmented_data", 42)
+augmenter = DataAugmenter("../dataset/all_assets/transformed", "../dataset/all_assets/augmented", 42)
 augmenter.augment_data()
