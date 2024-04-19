@@ -43,8 +43,8 @@ class DataAugmenter:
             # img_two = img_two.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
             img_two = ImageEnhance.Sharpness(img_two).enhance(random.uniform(0.9, 1.1))
 
-            img = add_noise(img, (0.05, 0.15))
-            img_two = add_noise(img_two, (0.05, 0.15))
+            img = add_noise(img, (0.05, 0.1))
+            img_two = add_noise(img_two, (0.05, 0.1))
 
             output_path = os.path.join(self.output_folder, f"{os.path.splitext(img_file)[0]}_augmented_1.jpg")
             output_path_two = os.path.join(self.output_folder, f"{os.path.splitext(img_file)[0]}_augmented_2.jpg")
