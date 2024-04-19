@@ -8,3 +8,7 @@ torch
 torchvision
 scipy
 imgaug
+pytorch-fid
+cython
+pot
+pyyaml
