@@ -5,7 +5,6 @@ from functools import reduce
 from PIL import Image, ImageEnhance
 from tqdm import tqdm
 
-from dataset.DataTransformer import DataTransformer
 from utils.add_noise import add_noise
 
 
@@ -26,25 +25,32 @@ class DataAugmenter:
             # Open the image
             img_path = os.path.join(self.src_folder, img_file)
             img = Image.open(img_path)
+            img_two = Image.open(img_path)
 
             # Randomly choose augmentation techniques
             augmentation_functions = [
-                lambda img: img.rotate(random.randint(-15, 15), fillcolor="white"),
-                lambda img: ImageEnhance.Color(img).enhance(random.uniform(0.75, 1.25)),
-                lambda img: ImageEnhance.Brightness(img).enhance(random.uniform(1, 1.25)),
-                lambda img: ImageEnhance.Contrast(img).enhance(random.uniform(0.75, 1.25)),
-                lambda img: ImageEnhance.Sharpness(img).enhance(random.uniform(0.5, 1.5)),
-                lambda img: img.transpose(Image.Transpose.FLIP_LEFT_RIGHT),
+                lambda img: img.rotate(random.randint(-20, 20), fillcolor="white"),
+                # lambda img: ImageEnhance.Brightness(img).enhance(random.uniform(1, 1.25)),
+                # lambda img: ImageEnhance.Contrast(img).enhance(random.uniform(0.75, 1.25)),
             ]
 
-            num_augmentations = random.randint(1, len(augmentation_functions))
-            for _ in range(num_augmentations):
-                selected_functions = random.sample(augmentation_functions, 3)
-                img = reduce(lambda x, func: func(x), selected_functions, img)
+            # selected_functions = random.sample(augmentation_functions, 1)
+            # img = reduce(lambda x, func: func(x), selected_functions, img)
+            img = img.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
 
-            img = add_noise(img, (0.1, 0.2))
-            output_path = os.path.join(self.output_folder, f"{os.path.splitext(img_file)[0]}_augmented.jpg")
+            selected_functions = random.sample(augmentation_functions, 1)
+            img_two = reduce(lambda x, func: func(x), selected_functions, img_two)
+            # img_two = img_two.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+            img_two = ImageEnhance.Sharpness(img_two).enhance(random.uniform(0.9, 1.1))
+
+            img = add_noise(img, (0.05, 0.15))
+            img_two = add_noise(img_two, (0.05, 0.15))
+
+            output_path = os.path.join(self.output_folder, f"{os.path.splitext(img_file)[0]}_augmented_1.jpg")
+            output_path_two = os.path.join(self.output_folder, f"{os.path.splitext(img_file)[0]}_augmented_2.jpg")
+
             img.save(output_path)
+            img_two.save(output_path_two)
 
 
 augmenter = DataAugmenter("nested/transformed_data", "nested/augmented_data", 42)
