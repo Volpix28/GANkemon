@@ -1,22 +1,5 @@
 *.png
 *.pyc
 .DS_Store
-dataset/dataset_schmutz
-dataset/original_cleaned
-dataset/Pokemon - Image dataset.zip
-dataset/Pokemon Generation One.zip
-dataset/Pokemon Images Dataset.zip
-dataset/The Complete Pokemon Images Data Set.zip
-dataset/transformed_data_2.zip
-dataset/7,000 Labeled Pokemon.zip
-dataset/dataset_new_7k
-dataset/dataset_new_2k.zip
-dataset/dataset_new_7k.zip
-dataset/Game Assets Dump_original.zip
-dataset/Game Assets Dump.zip
-dataset/all_assets
-dataset/2D_assets
-dataset/2D_assets.zip
-dataset/all_assets.zip
-dataset/bulbapedia
-dataset/bulbapedia.zip
+dataset/
+*.pth
