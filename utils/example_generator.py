@@ -31,16 +31,14 @@ def generate_examples(gen, steps, z_dim, device='cpu', n=100, path='saved_exampl
 def _generater_sorter(x):
     # x = input.split('/')[-1]   
     padding = 7
-    pre_padding = 5
     key = x.split('_')[1].split('.')[0]
     if len(x.split('_')) < 3:
         # print(int(key+padding*'9'))
-        return int(key + padding * '9')
+        return int(key+ padding*'9') #one is required otherwise 0 is not considered when converting to int
     else:
         key2 = x.split('_')[2].split('.')[0]
         # print(int(key+key2+(padding-len(key2))*'9'))  
-        return int(key + key2 + (padding - len(key2)) * '9')
-
+        return int(key+(padding-len(key2))*'0'+key2) #one is required otherwise 0 is not considered when converting to int
 
 def _pad_images(images, target_size=256):
     _, _, h, w = images.shape

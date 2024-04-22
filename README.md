@@ -11,6 +11,8 @@ The goal of this project is to create new Pokemons which still feel like the ori
 
 - Game Assets Dump
 
+- Bulbapedia - scraped top 10 images from bulbapedia for every Pokemon and manually cleaned the Dataset
+
 ### some dirty ones
 
 - [7,000 Labeled Pokemon](https://www.kaggle.com/datasets/lantian773030/pokemonclassification)
@@ -29,7 +31,6 @@ Base Dataset:
 
 - Game Assets Dump
 
-
 All Assets: 
 
 - Pokemon - Image dataset
@@ -40,6 +41,25 @@ All Assets:
 
 - Game Assets Dump
 
+## Quality Scores
 
+Sources: 
 
-New = "Pokemon - Image dataset, "Game Assets Dump", "The Complete Pokemon Images Data Set", "Pokemon Images Dataset", nur welche mit weißem Hintergrund und 2D (+ schwarzem Rand) von "7,000 Labeled Pokemon" und "Pokemon Generation One"
+- [Medium: GAN — How to measure GAN performance?](https://jonathan-hui.medium.com/gan-how-to-measure-gan-performance-64b988c47732)
+
+Scores: 
+
+- Inception Score (IS) - measures quality based on quality of generations and their diversity
+
+- Fréchet Inception Distance (FID)
+    - uses the Inception Network to extract features and calucates FID based on them
+    - is sensitive to mode collapse
+    - more robust to noise than IS
+    - better measurement for image diversity
+    - FID between training and test set should be zero, since both real images (not valid for batches of train)
+    - Lower FID values mean better image quality and diversity
+
+- Precision?
+- Recall?
+- F1-Score?
+
