@@ -1,19 +1,13 @@
 import torch
-from torch import nn, optim
-from torchvision import datasets, transforms
+from torch import nn
 import torch.nn.functional as F
-from torch.utils.data import DataLoader
-from torchvision.utils import save_image
-from math import log2
 import numpy as np
 import os
 from tqdm import tqdm
-import torchvision.datasets as dset
-import matplotlib.pyplot as plt
-import random
-from PIL import Image
+
 
 def set_seeds(seed=42):
+
     os.environ['PYTHONHASHSEED'] = str(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -22,18 +16,20 @@ def set_seeds(seed=42):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
+
 factors = [1, 1, 1, 1, 1 / 2, 1 / 4, 1 / 8, 1 / 16, 1 / 32]
+
 
 class WSConv2d(nn.Module):
 
     def __init__(
-        self, in_channels, out_channels, kernel_size=3, stride=1, padding=1,
+            self, in_channels, out_channels, kernel_size=3, stride=1, padding=1,
     ):
         super(WSConv2d, self).__init__()
-        self.conv      = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding)
-        self.scale     = (2 / (in_channels * (kernel_size ** 2))) ** 0.5
-        self.bias      = self.conv.bias #Copy the bias of the current column layer
-        self.conv.bias = None      #Remove the bias
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding)
+        self.scale = (2 / (in_channels * (kernel_size ** 2))) ** 0.5
+        self.bias = self.conv.bias  # Copy the bias of the current column layer
+        self.conv.bias = None  # Remove the bias
 
         # initialize conv layer
         nn.init.normal_(self.conv.weight)
@@ -41,6 +37,7 @@ class WSConv2d(nn.Module):
 
     def forward(self, x):
         return self.conv(x * self.scale) + self.bias.view(1, self.bias.shape[0], 1, 1)
+
 
 class PixelNorm(nn.Module):
     def __init__(self):
@@ -50,14 +47,15 @@ class PixelNorm(nn.Module):
     def forward(self, x):
         return x / torch.sqrt(torch.mean(x ** 2, dim=1, keepdim=True) + self.epsilon)
 
+
 class ConvBlock(nn.Module):
     def __init__(self, in_channels, out_channels, use_pixelnorm=True):
         super(ConvBlock, self).__init__()
         self.use_pn = use_pixelnorm
-        self.conv1  = WSConv2d(in_channels, out_channels)
-        self.conv2  = WSConv2d(out_channels, out_channels)
-        self.leaky  = nn.LeakyReLU(0.2)
-        self.pn     = PixelNorm()
+        self.conv1 = WSConv2d(in_channels, out_channels)
+        self.conv2 = WSConv2d(out_channels, out_channels)
+        self.leaky = nn.LeakyReLU(0.2)
+        self.pn = PixelNorm()
 
     def forward(self, x):
         x = self.leaky(self.conv1(x))
@@ -65,6 +63,7 @@ class ConvBlock(nn.Module):
         x = self.leaky(self.conv2(x))
         x = self.pn(x) if self.use_pn else x
         return x
+
 
 class Generator(nn.Module):
     def __init__(self, z_dim, in_channels, img_channels=3):
@@ -89,9 +88,9 @@ class Generator(nn.Module):
         )
 
         for i in range(
-            len(factors) - 1
+                len(factors) - 1
         ):  # -1 to prevent index error because of factors[i+1]
-            conv_in_c  = int(in_channels * factors[i])
+            conv_in_c = int(in_channels * factors[i])
             conv_out_c = int(in_channels * factors[i + 1])
             self.prog_blocks.append(ConvBlock(conv_in_c, conv_out_c))
             self.rgb_layers.append(
@@ -119,6 +118,7 @@ class Generator(nn.Module):
         final_upscaled = self.rgb_layers[steps - 1](upscaled)
         final_out = self.rgb_layers[steps](out)
         return self.fade_in(alpha, final_upscaled, final_out)
+
 
 class Discriminator(nn.Module):
     def __init__(self, in_channels, img_channels=3):
@@ -204,6 +204,7 @@ class Discriminator(nn.Module):
         out = self.minibatch_std(out)
         return self.final_block(out).view(out.shape[0], -1)
 
+
 def gradient_penalty(critic, real, fake, alpha, train_step, device="mps"):
     BATCH_SIZE, C, H, W = real.shape
     beta = torch.rand((BATCH_SIZE, 1, 1, 1)).repeat(1, C, H, W).to(device)
@@ -226,19 +227,20 @@ def gradient_penalty(critic, real, fake, alpha, train_step, device="mps"):
     gradient_penalty = torch.mean((gradient_norm - 1) ** 2)
     return gradient_penalty
 
+
 def train_fn(
-    critic,
-    gen,
-    loader,
-    dataset,
-    step,
-    alpha,
-    opt_critic,
-    opt_gen,
-    z_dim,
-    lambda_gp,
-    progressive_epochs, 
-    device='cpu'
+        critic,
+        gen,
+        loader,
+        dataset,
+        step,
+        alpha,
+        opt_critic,
+        opt_gen,
+        z_dim,
+        lambda_gp,
+        progressive_epochs,
+        device='cpu'
 ):
     loop = tqdm(loader, leave=True)
     for batch_idx, (real, _) in enumerate(loop):
@@ -254,9 +256,9 @@ def train_fn(
         critic_fake = critic(fake.detach(), alpha, step)
         gp = gradient_penalty(critic, real, fake, alpha, step, device=device)
         loss_critic = (
-            -(torch.mean(critic_real) - torch.mean(critic_fake))
-            + lambda_gp * gp
-            + (0.001 * torch.mean(critic_real ** 2))
+                -(torch.mean(critic_real) - torch.mean(critic_fake))
+                + lambda_gp * gp
+                + (0.001 * torch.mean(critic_real ** 2))
         )
 
         critic.zero_grad()
@@ -273,7 +275,7 @@ def train_fn(
 
         # Update alpha and ensure less than 1
         alpha += cur_batch_size / (
-            (progressive_epochs[step] * 0.5) * len(dataset)
+                (progressive_epochs[step] * 0.5) * len(dataset)
         )
         alpha = min(alpha, 1)
 
@@ -281,6 +283,5 @@ def train_fn(
             gp=gp.item(),
             loss_critic=loss_critic.item(),
         )
-        
 
     return alpha

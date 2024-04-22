@@ -10,6 +10,7 @@ from math import log2
 import numpy as np
 import imageio
 
+
 def generate_examples(gen, steps, z_dim, device='cpu', n=100, path='saved_examples', epoch=None):
     folder = f'step{steps}'
     if epoch is not None:
@@ -21,10 +22,11 @@ def generate_examples(gen, steps, z_dim, device='cpu', n=100, path='saved_exampl
         with torch.no_grad():
             noise = torch.randn(1, z_dim, 1, 1).to(device)
             img = gen(noise, alpha, steps)
-            if not os.path.exists(os.path.join(path,f'{folder}')):
-                os.makedirs(os.path.join(path,f'{folder}'))
-            save_image(img*0.5+0.5, os.path.join(path,f"{folder}/img_{i}.png"))
+            if not os.path.exists(os.path.join(path, f'{folder}')):
+                os.makedirs(os.path.join(path, f'{folder}'))
+            save_image(img * 0.5 + 0.5, os.path.join(path, f"{folder}/img_{i}.png"))
     gen.train()
+
 
 def _generater_sorter(x):
     # x = input.split('/')[-1]   
@@ -33,11 +35,12 @@ def _generater_sorter(x):
     key = x.split('_')[1].split('.')[0]
     if len(x.split('_')) < 3:
         # print(int(key+padding*'9'))
-        return int(key+padding*'9')
+        return int(key + padding * '9')
     else:
         key2 = x.split('_')[2].split('.')[0]
         # print(int(key+key2+(padding-len(key2))*'9'))  
-        return int(key+key2+(padding-len(key2))*'9')
+        return int(key + key2 + (padding - len(key2)) * '9')
+
 
 def _pad_images(images, target_size=256):
     _, _, h, w = images.shape
@@ -46,6 +49,7 @@ def _pad_images(images, target_size=256):
     padding = (pad_w // 2, pad_w - pad_w // 2, pad_h // 2, pad_h - pad_h // 2)
     padded_images = torch.nn.functional.pad(images, padding, value=1)
     return padded_images / 2 + 0.5  # Normalize to [0, 1]
+
 
 def _create_grid(images, target_size, ncols=5):
     batch_size, channels, _, _ = images.shape
@@ -67,7 +71,7 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
         if not os.path.isfile(os.path.join(path, file)):
             continue
         if not file.endswith('.pth'):
-            continue 
+            continue
         if file.startswith('generator'):
             generators.append(file)
             print(os.path.join(path, file))
@@ -77,18 +81,16 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
     generators = sorted(generators, key=_generater_sorter)
     print(generators)
 
-
-
     gen = Generator(
-            z_dim, in_channels, img_channels=channels_img
-        ).to(device)
+        z_dim, in_channels, img_channels=channels_img
+    ).to(device)
 
     img_list = []
-    grid_size = (5,5)
-    amount_gens = grid_size[0]*grid_size[1]
-    fig = plt.figure(figsize=(8,8))
+    grid_size = (5, 5)
+    amount_gens = grid_size[0] * grid_size[1]
+    fig = plt.figure(figsize=(8, 8))
     plt.axis("off")
-    ims=[]
+    ims = []
     alpha = 1.0
     sub_path = 'evolution_grids'
 
@@ -105,12 +107,12 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
 
     for gen_filename in generators:
         file_id = '_'.join(gen_filename.split('_')[1:]).split('.')[0]
-        if len(file_id.split('_'))<2:
+        if len(file_id.split('_')) < 2:
             file_id += '_last_epoch'
 
         image_size = int(gen_filename.split('_')[1].split('.')[0])
-        padding = (max_size - image_size)//2
-        step =  int(log2(int(image_size) / 4))
+        padding = (max_size - image_size) // 2
+        step = int(log2(int(image_size) / 4))
 
         gen.load_state_dict(torch.load(os.path.join(path, gen_filename)))
         with torch.no_grad():
@@ -122,7 +124,7 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
 
         # img_list.append(img)
         img_list.append(grid)
-        
+
         os.makedirs(os.path.join(path, sub_path), exist_ok=True)
 
         # save_image(img, os.path.join(path, sub_path, f"evolution_grid_{file_id}.png"))
@@ -130,10 +132,8 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
         save_image(grid, os.path.join(path, sub_path, f"evolution_grid_{file_id}.png"))
         # ims.append([plt.imshow(np.transpose(grid,(1,2,0)), animated=True)]) #TODO: maybe add epoch & size description?
 
-        
         grid_np = grid.permute(1, 2, 0).cpu().numpy() * 255  # Convert to numpy and scale to [0, 255]
         grid_np = np.uint8(grid_np)  # Convert to uint8 for imageio
-
 
         frames.append(grid_np)  # Append the first frame
 
@@ -142,7 +142,6 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
         #     # Add more frames here if needed
         #     frames.append(grid_np)  # Append the same frame multiple times for demonstration
 
-    
     # ims = [[plt.imshow(np.transpose(i,(1,2,0)), animated=True)] for i in img_list]
     # ani = ArtistAnimation(fig, ims, interval=1000, repeat_delay=1000, blit=True)
     # ani.save(os.path.join(path, sub_path,"evolution.gif"), dpi=300, writer=PillowWriter(fps=5))
@@ -150,10 +149,8 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
     # if display_animation:
     #     HTML(ani.to_jshtml())
 
-
-
     # Save frames as a GIF
-    imageio.mimsave(os.path.join(path, sub_path,"evolution.gif"), frames, fps=fps)#duration=1.5)  # Adjust duration as needed
-    
-    # return ani
+    imageio.mimsave(os.path.join(path, sub_path, "evolution.gif"), frames,
+                    fps=fps)  # duration=1.5)  # Adjust duration as needed
 
+    # return ani
