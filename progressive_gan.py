@@ -285,3 +285,13 @@ def train_fn(
         )
 
     return alpha
+
+class DiscriminatorWrapper(nn.Module):
+    def __init__(self, model, alpha=0.5, steps=0):
+        super(DiscriminatorWrapper, self).__init__()
+        self.model = model
+        self.alpha = alpha
+        self.steps = steps
+    
+    def forward(self, x):
+        return self.model(x, self.alpha, self.steps)
