@@ -48,7 +48,6 @@ def _pad_images(images, target_size=256):
     padded_images = torch.nn.functional.pad(images, padding, value=1)
     return padded_images / 2 + 0.5  # Normalize to [0, 1]
 
-
 def _create_grid(images, target_size, ncols=5):
     batch_size, channels, _, _ = images.shape
     nrows = (batch_size + ncols - 1) // ncols
@@ -61,7 +60,6 @@ def _create_grid(images, target_size, ncols=5):
         start_x = col * target_size
         grid[:, start_y:start_y + target_size, start_x:start_x + target_size] = padded_images[i]
     return grid
-
 
 def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, device='cpu', display_animation=False):
     generators = []

@@ -12,3 +12,4 @@ pytorch-fid
 cython
 pot
 pyyaml
+scikit-learn
