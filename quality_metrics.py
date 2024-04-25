@@ -1,3 +1,4 @@
+from typing_extensions import deprecated
 from sklearn.neighbors import NearestNeighbors
 from skimage.metrics import structural_similarity as ssim
 from scipy.stats import wasserstein_distance
@@ -6,6 +7,7 @@ import numpy as np
 import os
 from PIL import Image
 import tempfile
+import random
 
 def load_images_from_folder(folder, flattening_required = False):
     """_summary_
@@ -45,6 +47,7 @@ def resize_to_smaller(img1, img2):
     
     return img1, img2
 
+@deprecated
 def nn_metric(path1, path2, verbose=False):
     """_summary_
 
@@ -84,7 +87,7 @@ def nn_metric(path1, path2, verbose=False):
         print(f"The average distance between the two datasets is: {avg_distance}")
     return avg_distance
 
-def ssim_metric(path1, path2, verbose=False):
+def ssim_metric(path1, path2, verbose=False, sample=None):
     """Average Structural Similarity Index (SSIM) between two datasets.
     SSIM is between 0 and 1, where 1 means the images are identical.
     For more information see: https://scikit-image.org/docs/stable/auto_examples/transform/plot_ssim.html
@@ -105,6 +108,9 @@ def ssim_metric(path1, path2, verbose=False):
         dataset2 = load_images_from_folder(path2)
     else:
         dataset2 = path2
+
+    if sample != None and len(dataset1) > sample:
+        dataset1 = random.sample(dataset1, sample)
 
     # For each image in dataset 2, find the most similar image in dataset 1
     ssims =[]
@@ -127,7 +133,7 @@ def ssim_metric(path1, path2, verbose=False):
         print(f"The average SSIM between the two datasets is: {avg_ssim}")
     return avg_ssim
 
-def waterstein_distance_metric(path1, path2, verbose=False):
+def waterstein_distance_metric(path1, path2, batch_size=200, verbose=False, sample=None):
     """_summary_
 
     Args:
@@ -147,12 +153,26 @@ def waterstein_distance_metric(path1, path2, verbose=False):
     else:
         dataset2 = path2
 
-    # Flatten the datasets into 1-dimensional distributions
-    dataset1_flat = np.array(dataset1).flatten() #again??? 
+    # # Flatten the datasets into 1-dimensional distributions
+    # dataset1_flat = np.array(dataset1).flatten() #again??? 
     dataset2_flat = np.array(dataset2).flatten()
 
+    if sample != None and len(dataset1) > sample:
+        dataset1 = random.sample(dataset1, sample)
+
+    w_dist = 0
+    start = 0
+    n_batches = int(np.ceil(len(dataset1) / float(batch_size)))
+    end = batch_size
+    for i in range(n_batches):
+        start = i * batch_size
+        end = start + batch_size
+        batch1 = np.array(dataset1[start:end]).flatten()
+        w_dist += wasserstein_distance(batch1, dataset2_flat)
+    w_dist /= n_batches
+
     # Compute the Wasserstein distance between the two datasets
-    w_dist = wasserstein_distance(dataset1_flat, dataset2_flat) #wasserstein_distance_nd maybe?
+    # w_dist = wasserstein_distance(dataset1_flat, dataset2_flat) #wasserstein_distance_nd maybe?
 
     
     if verbose == True:

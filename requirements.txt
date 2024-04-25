@@ -13,3 +13,4 @@ cython
 pot
 pyyaml
 scikit-learn
+grad-cam
