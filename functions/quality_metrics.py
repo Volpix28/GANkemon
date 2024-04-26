@@ -1,15 +1,16 @@
-from typing_extensions import deprecated
-from sklearn.neighbors import NearestNeighbors
-from skimage.metrics import structural_similarity as ssim
-from scipy.stats import wasserstein_distance
-from pytorch_fid import fid_score
 import numpy as np
 import os
 from PIL import Image
 import tempfile
 import random
+from typing_extensions import deprecated
+from sklearn.neighbors import NearestNeighbors
+from skimage.metrics import structural_similarity as ssim
+from scipy.stats import wasserstein_distance
+from pytorch_fid import fid_score
 
-def load_images_from_folder(folder, flattening_required = False):
+
+def load_images_from_folder(folder, flattening_required=False):
     """_summary_
 
     Args:
@@ -21,13 +22,14 @@ def load_images_from_folder(folder, flattening_required = False):
     """
     images = []
     for filename in os.listdir(folder):
-        img = Image.open(os.path.join(folder,filename))
+        img = Image.open(os.path.join(folder, filename))
         if img is not None:
             if flattening_required:
                 images.append(np.array(img).flatten())
             else:
                 images.append(np.array(img))
     return images
+
 
 def resize_to_smaller(img1, img2):
     # Determine the size of both images
@@ -40,12 +42,13 @@ def resize_to_smaller(img1, img2):
     # If img2 is larger than img1, resize img2
     elif size2[0] > size1[0] or size2[1] > size1[1]:
         img2 = img2.resize(size1, Image.LANCZOS)
-    
+
     # Convert the images to numpy arrays
     img1 = np.array(img1)
     img2 = np.array(img2)
-    
+
     return img1, img2
+
 
 @deprecated
 def nn_metric(path1, path2, verbose=False):
@@ -78,14 +81,16 @@ def nn_metric(path1, path2, verbose=False):
     distances = []
     for i in range(len(dataset2)):
         if verbose == True:
-            print(f"Image {i} in dataset 2 is closest to image {indices[i][0]} in dataset 1 with distance: {distances[i][0]}")
+            print(
+                f"Image {i} in dataset 2 is closest to image {indices[i][0]} in dataset 1 with distance: {distances[i][0]}")
         distances.append(distances[i][0])
-    
+
     # Compute the average distance between the two datasets
     avg_distance = np.mean(distances)
     if verbose == True:
         print(f"The average distance between the two datasets is: {avg_distance}")
     return avg_distance
+
 
 def ssim_metric(path1, path2, verbose=False, sample=None):
     """Average Structural Similarity Index (SSIM) between two datasets.
@@ -101,7 +106,7 @@ def ssim_metric(path1, path2, verbose=False, sample=None):
     """
     # Load images from two datasets
     if type(path1) == str:
-        dataset1 = load_images_from_folder(path1) #TODO: eventually needs grayscale?
+        dataset1 = load_images_from_folder(path1)  # TODO: eventually needs grayscale?
     else:
         dataset1 = path1
     if type(path2) == str:
@@ -113,7 +118,7 @@ def ssim_metric(path1, path2, verbose=False, sample=None):
         dataset1 = random.sample(dataset1, sample)
 
     # For each image in dataset 2, find the most similar image in dataset 1
-    ssims =[]
+    ssims = []
     for i, img2 in enumerate(dataset2):
         max_ssim = -1
         max_index = -1
@@ -132,6 +137,7 @@ def ssim_metric(path1, path2, verbose=False, sample=None):
     if verbose == True:
         print(f"The average SSIM between the two datasets is: {avg_ssim}")
     return avg_ssim
+
 
 def waterstein_distance_metric(path1, path2, batch_size=200, verbose=False, sample=None):
     """_summary_
@@ -174,12 +180,12 @@ def waterstein_distance_metric(path1, path2, batch_size=200, verbose=False, samp
     # Compute the Wasserstein distance between the two datasets
     # w_dist = wasserstein_distance(dataset1_flat, dataset2_flat) #wasserstein_distance_nd maybe?
 
-    
     if verbose == True:
         print(f"The Wasserstein distance between the two datasets is: {w_dist}")
     return w_dist
 
-def fid_metric(path1, path2, batch_size = 32, dims = 64, device = 'cpu'):
+
+def fid_metric(path1, path2, batch_size=32, dims=64, device='cpu'):
     """Calculate the Frechet Inception Distance (FID) between two datasets.
 
     Args:
@@ -209,7 +215,7 @@ def fid_metric(path1, path2, batch_size = 32, dims = 64, device = 'cpu'):
         # Replace dataset with the list of temporary file paths
         path1 = temp_dir
         cleanup_path1 = True
-    
+
     if type(path2) != str:
         dataset = path2
         # Create a temporary directory
@@ -226,7 +232,7 @@ def fid_metric(path1, path2, batch_size = 32, dims = 64, device = 'cpu'):
 
     print(fid_score)
     fid_value = fid_score.calculate_fid_given_paths(
-            [path1, path2], batch_size, device, dims,
+        [path1, path2], batch_size, device, dims,
     )
 
     # Clean up the temporary files
@@ -238,6 +244,7 @@ def fid_metric(path1, path2, batch_size = 32, dims = 64, device = 'cpu'):
             os.remove(path)
 
     return fid_value
+
 
 if __name__ == '__main__':
     dataset1 = './dataset/bulbapedia/transformed'

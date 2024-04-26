@@ -1,6 +1,6 @@
 # GANkémon
 
-The goal of this project is to create new Pokemons which still feel like the original ones.
+This project aims at the synthetic generation of new Pokemon (GANkemon). The network used is a Progressive Generative Adversarial Network.
 
 ## Datasets
 - [Pokemon - Image dataset](https://huggingface.co/datasets/huggan/pokemon) or [Alternative Link](https://www.kaggle.com/datasets/djilax/pkmn-image-dataset)

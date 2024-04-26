@@ -24,21 +24,22 @@ def generate_examples(gen, steps, z_dim, device='cpu', n=100, path='saved_exampl
             img = gen(noise, alpha, steps)
             if not os.path.exists(os.path.join(path, f'{folder}')):
                 os.makedirs(os.path.join(path, f'{folder}'))
-            save_image(img * 0.5 + 0.5, os.path.join(path, f"{folder}/img_{i}.png"))
+            save_image(img * 0.5 + 0.5, os.path.join(path, f'{folder}/img_{i}.png'))
     gen.train()
 
 
 def _generater_sorter(x):
-    # x = input.split('/')[-1]   
     padding = 7
     key = x.split('_')[1].split('.')[0]
     if len(x.split('_')) < 3:
         # print(int(key+padding*'9'))
-        return int(key+ padding*'9') #one is required otherwise 0 is not considered when converting to int
+        return int(key + padding * '9')  # one is required otherwise 0 is not considered when converting to int
     else:
         key2 = x.split('_')[2].split('.')[0]
         # print(int(key+key2+(padding-len(key2))*'9'))  
-        return int(key+(padding-len(key2))*'0'+key2) #one is required otherwise 0 is not considered when converting to int
+        return int(key + (padding - len(
+            key2)) * '0' + key2)  # one is required otherwise 0 is not considered when converting to int
+
 
 def _pad_images(images, target_size=256):
     _, _, h, w = images.shape
@@ -47,6 +48,7 @@ def _pad_images(images, target_size=256):
     padding = (pad_w // 2, pad_w - pad_w // 2, pad_h // 2, pad_h - pad_h // 2)
     padded_images = torch.nn.functional.pad(images, padding, value=1)
     return padded_images / 2 + 0.5  # Normalize to [0, 1]
+
 
 def _create_grid(images, target_size, ncols=5):
     batch_size, channels, _, _ = images.shape
@@ -60,6 +62,7 @@ def _create_grid(images, target_size, ncols=5):
         start_x = col * target_size
         grid[:, start_y:start_y + target_size, start_x:start_x + target_size] = padded_images[i]
     return grid
+
 
 def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, device='cpu', display_animation=False):
     generators = []
@@ -85,7 +88,7 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
     grid_size = (5, 5)
     amount_gens = grid_size[0] * grid_size[1]
     fig = plt.figure(figsize=(8, 8))
-    plt.axis("off")
+    plt.axis('off')
     ims = []
     alpha = 1.0
     sub_path = 'evolution_grids'
@@ -123,9 +126,9 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
 
         os.makedirs(os.path.join(path, sub_path), exist_ok=True)
 
-        # save_image(img, os.path.join(path, sub_path, f"evolution_grid_{file_id}.png"))
+        # save_image(img, os.path.join(path, sub_path, f'evolution_grid_{file_id}.png'))
         # ims = ([plt.imshow(np.transpose(img,(1,2,0)), animated=True)]) #TODO: maybe add epoch & size description?
-        save_image(grid, os.path.join(path, sub_path, f"evolution_grid_{file_id}.png"))
+        save_image(grid, os.path.join(path, sub_path, f'evolution_grid_{file_id}.png'))
         # ims.append([plt.imshow(np.transpose(grid,(1,2,0)), animated=True)]) #TODO: maybe add epoch & size description?
 
         grid_np = grid.permute(1, 2, 0).cpu().numpy() * 255  # Convert to numpy and scale to [0, 255]
@@ -140,13 +143,17 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
 
     # ims = [[plt.imshow(np.transpose(i,(1,2,0)), animated=True)] for i in img_list]
     # ani = ArtistAnimation(fig, ims, interval=1000, repeat_delay=1000, blit=True)
-    # ani.save(os.path.join(path, sub_path,"evolution.gif"), dpi=300, writer=PillowWriter(fps=5))
+    # ani.save(os.path.join(path, sub_path,'evolution.gif'), dpi=300, writer=PillowWriter(fps=5))
 
     # if display_animation:
     #     HTML(ani.to_jshtml())
 
     # Save frames as a GIF
-    imageio.mimsave(os.path.join(path, sub_path, "evolution.gif"), frames,
+    imageio.mimsave(os.path.join(path, sub_path, 'evolution.gif'), frames,
                     fps=fps)  # duration=1.5)  # Adjust duration as needed
 
     # return ani
+
+
+if __name__ == '__main__':
+    generate_example_animation('outputs/32_gens_of_runs_23_and_31_combined', 256, 256, 3, fps=3, display_animation=True)
