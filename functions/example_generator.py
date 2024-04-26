@@ -77,8 +77,6 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
         if file.startswith("generator"):
             generators.append(file)
             print(os.path.join(path, file))
-        # os.system(f"ffmpeg -r 10 -i {os.path.join(path, dir)}/img_%d.png -vcodec mpeg4 -y {os.path.join(path, dir)}.mp4")
-        # os.system(f"rm -r {os.path.join(path, dir)}")
 
     generators = sorted(generators, key=_generater_sorter)
     print(generators)
@@ -96,9 +94,6 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
     alpha = 1.0
     sub_path = "evolution_grids"
 
-    # noises = []
-    # for i in range(25):
-    #     noises.append(torch.randn(1, z_dim, 1, 1))
     fixed_noise = torch.randn(amount_gens, z_dim, 1, 1).to(device)
 
     max_size = int(generators[-1].split("_")[1].split(".")[0])
@@ -129,11 +124,8 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
 
         os.makedirs(os.path.join(path, sub_path), exist_ok=True)
 
-        # save_image(img, os.path.join(path, sub_path, f"evolution_grid_{file_id}.png"))
-        # ims = ([plt.imshow(np.transpose(img,(1,2,0)), animated=True)]) #TODO: maybe add epoch & size description?
         save_image(grid, os.path.join(path, sub_path,
                    f"evolution_grid_{file_id}.png"))
-        # ims.append([plt.imshow(np.transpose(grid,(1,2,0)), animated=True)]) #TODO: maybe add epoch & size description?
 
         # Convert to numpy and scale to [0, 255]
         grid_np = grid.permute(1, 2, 0).cpu().numpy() * 255
@@ -141,23 +133,9 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
 
         frames.append(grid_np)  # Append the first frame
 
-        # # Assuming you want to create a GIF with 10 frames
-        # for _ in range(9):
-        #     # Add more frames here if needed
-        #     frames.append(grid_np)  # Append the same frame multiple times for demonstration
-
-    # ims = [[plt.imshow(np.transpose(i,(1,2,0)), animated=True)] for i in img_list]
-    # ani = ArtistAnimation(fig, ims, interval=1000, repeat_delay=1000, blit=True)
-    # ani.save(os.path.join(path, sub_path,"evolution.gif"), dpi=300, writer=PillowWriter(fps=5))
-
-    # if display_animation:
-    #     HTML(ani.to_jshtml())
-
     # Save frames as a GIF
     imageio.mimsave(os.path.join(path, sub_path, "evolution.gif"), frames,
                     fps=fps)  # duration=1.5)  # Adjust duration as needed
-
-    # return ani
 
 
 if __name__ == "__main__":
