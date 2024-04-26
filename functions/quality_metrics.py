@@ -10,18 +10,6 @@ from pytorch_fid import fid_score
 from typing_extensions import deprecated
 
 
-def load_images_from_folder(folder, flattening_required=False):
-    images = []
-    for filename in os.listdir(folder):
-        img = Image.open(os.path.join(folder, filename))
-        if img is not None:
-            if flattening_required:
-                images.append(np.array(img).flatten())
-            else:
-                images.append(np.array(img))
-    return images
-
-
 def resize_to_smaller(img1, img2):
     # Determine the size of both images
     size1 = img1.size

@@ -6,7 +6,6 @@ def add_noise(image, noise_intensity_range):
     """
     Add a tiny amount of colorless noise to an image using Pillow.
     """
-
     img_array = np.array(image)
 
     min_intensity, max_intensity = noise_intensity_range

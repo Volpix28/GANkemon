@@ -5,6 +5,11 @@ import numpy as np
 
 
 def set_seeds(seed=42):
+    """
+    Set the seed for the utilized frameworks and libraries for reproducability.
+    :param seed:
+    :return:
+    """
 
     os.environ["PYTHONHASHSEED"] = str(seed)
     np.random.seed(seed)

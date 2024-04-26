@@ -2,6 +2,9 @@ import matplotlib.pyplot as plt
 
 
 def plot_images(images, grid_size=(10, 10)):
+    """
+    Plot provided images in the provided grid.
+    """
     fig, axes = plt.subplots(
         nrows=grid_size[0], ncols=grid_size[1], figsize=(20, 20))
     axes = axes.flatten()

@@ -3,6 +3,9 @@ from PIL import Image
 
 
 def load_images_from_folder(folder, num_images=100):
+    """
+    Load limited amount of pngs from the provided folder.
+    """
     images = []
     for i in range(0, num_images):
         filename = os.path.join(folder, f"img_{i}.png")
