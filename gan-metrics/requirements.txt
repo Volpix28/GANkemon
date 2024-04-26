@@ -1,8 +1,0 @@
-torch
-torchvision
-numpy
-tqdm
-scipy
-cython
-pot
-pyyaml

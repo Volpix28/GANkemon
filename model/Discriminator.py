@@ -9,7 +9,8 @@ from model.constants import FACTORS
 class Discriminator(nn.Module):
     def __init__(self, in_channels, img_channels=3):
         super(Discriminator, self).__init__()
-        self.prog_blocks, self.rgb_layers = nn.ModuleList([]), nn.ModuleList([])
+        self.prog_blocks, self.rgb_layers = nn.ModuleList(
+            []), nn.ModuleList([])
         self.leaky = nn.LeakyReLU(0.2)
 
         # here we work back ways from factors because the discriminator
@@ -18,9 +19,11 @@ class Discriminator(nn.Module):
         for i in range(len(FACTORS) - 1, 0, -1):
             conv_in = int(in_channels * FACTORS[i])
             conv_out = int(in_channels * FACTORS[i - 1])
-            self.prog_blocks.append(ConvBlock(conv_in, conv_out, use_pixelnorm=False))
+            self.prog_blocks.append(
+                ConvBlock(conv_in, conv_out, use_pixelnorm=False))
             self.rgb_layers.append(
-                WSConv2d(img_channels, conv_in, kernel_size=1, stride=1, padding=0)
+                WSConv2d(img_channels, conv_in,
+                         kernel_size=1, stride=1, padding=0)
             )
 
         # perhaps confusing name "initial_rgb" this is just the RGB layer for 4x4 input size
@@ -38,7 +41,8 @@ class Discriminator(nn.Module):
             # +1 to in_channels because we concatenate from MiniBatch std
             WSConv2d(in_channels + 1, in_channels, kernel_size=3, padding=1),
             nn.LeakyReLU(0.2),
-            WSConv2d(in_channels, in_channels, kernel_size=4, padding=0, stride=1),
+            WSConv2d(in_channels, in_channels,
+                     kernel_size=4, padding=0, stride=1),
             nn.LeakyReLU(0.2),
             WSConv2d(
                 in_channels, 1, kernel_size=1, padding=0, stride=1
@@ -52,7 +56,8 @@ class Discriminator(nn.Module):
 
     def minibatch_std(self, x):
         batch_statistics = (
-            torch.std(x, dim=0).mean().repeat(x.shape[0], 1, x.shape[2], x.shape[3])
+            torch.std(x, dim=0).mean().repeat(
+                x.shape[0], 1, x.shape[2], x.shape[3])
         )
         # we take the std for each example (across all channels, and pixels) then we repeat it
         # for a single channel and concatenate it with the image. In this way the discriminator
@@ -76,7 +81,8 @@ class Discriminator(nn.Module):
 
         # because prog_blocks might change the channels, for down scale we use rgb_layer
         # from previous/smaller size which in our case correlates to +1 in the indexing
-        downscaled = self.leaky(self.rgb_layers[cur_step + 1](self.avg_pool(x)))
+        downscaled = self.leaky(
+            self.rgb_layers[cur_step + 1](self.avg_pool(x)))
         out = self.avg_pool(self.prog_blocks[cur_step](out))
 
         # the fade_in is done first between the downscaled and the input

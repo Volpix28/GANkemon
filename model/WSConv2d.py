@@ -7,7 +7,8 @@ class WSConv2d(nn.Module):
             self, in_channels, out_channels, kernel_size=3, stride=1, padding=1,
     ):
         super(WSConv2d, self).__init__()
-        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size, stride, padding)
+        self.conv = nn.Conv2d(in_channels, out_channels,
+                              kernel_size, stride, padding)
         self.scale = (2 / (in_channels * (kernel_size ** 2))) ** 0.5
         self.bias = self.conv.bias  # Copy the bias of the current column layer
         self.conv.bias = None  # Remove the bias

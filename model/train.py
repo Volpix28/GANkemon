@@ -32,9 +32,9 @@ def train(
         critic_fake = critic(fake.detach(), alpha, step)
         gp = gradient_penalty(critic, real, fake, alpha, step, device=device)
         loss_critic = (
-                -(torch.mean(critic_real) - torch.mean(critic_fake))
-                + lambda_gp * gp
-                + (0.001 * torch.mean(critic_real ** 2))
+            -(torch.mean(critic_real) - torch.mean(critic_fake))
+            + lambda_gp * gp
+            + (0.001 * torch.mean(critic_real ** 2))
         )
 
         critic.zero_grad()
@@ -51,7 +51,7 @@ def train(
 
         # Update alpha and ensure less than 1
         alpha += cur_batch_size / (
-                (progressive_epochs[step] * 0.5) * len(dataset)
+            (progressive_epochs[step] * 0.5) * len(dataset)
         )
         alpha = min(alpha, 1)
 

@@ -17,7 +17,8 @@ class Generator(nn.Module):
             PixelNorm(),
             nn.ConvTranspose2d(z_dim, in_channels, 4, 1, 0),
             nn.LeakyReLU(0.2),
-            WSConv2d(in_channels, in_channels, kernel_size=3, stride=1, padding=1),
+            WSConv2d(in_channels, in_channels,
+                     kernel_size=3, stride=1, padding=1),
             nn.LeakyReLU(0.2),
             PixelNorm(),
         )
@@ -37,7 +38,8 @@ class Generator(nn.Module):
             conv_out_c = int(in_channels * FACTORS[i + 1])
             self.prog_blocks.append(ConvBlock(conv_in_c, conv_out_c))
             self.rgb_layers.append(
-                WSConv2d(conv_out_c, img_channels, kernel_size=1, stride=1, padding=0)
+                WSConv2d(conv_out_c, img_channels,
+                         kernel_size=1, stride=1, padding=0)
             )
 
     def fade_in(self, alpha, upscaled, generated):

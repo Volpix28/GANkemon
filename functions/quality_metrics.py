@@ -1,13 +1,13 @@
-import numpy as np
 import os
+import random
+import numpy as np
 from PIL import Image
 import tempfile
-import random
-from typing_extensions import deprecated
 from sklearn.neighbors import NearestNeighbors
 from skimage.metrics import structural_similarity as ssim
 from scipy.stats import wasserstein_distance
 from pytorch_fid import fid_score
+from typing_extensions import deprecated
 
 
 def load_images_from_folder(folder, flattening_required=False):
@@ -88,7 +88,8 @@ def nn_metric(path1, path2, verbose=False):
     # Compute the average distance between the two datasets
     avg_distance = np.mean(distances)
     if verbose == True:
-        print(f"The average distance between the two datasets is: {avg_distance}")
+        print(
+            f"The average distance between the two datasets is: {avg_distance}")
     return avg_distance
 
 
@@ -106,7 +107,7 @@ def ssim_metric(path1, path2, verbose=False, sample=None):
     """
     # Load images from two datasets
     if type(path1) == str:
-        dataset1 = load_images_from_folder(path1)  # TODO: eventually needs grayscale?
+        dataset1 = load_images_from_folder(path1)
     else:
         dataset1 = path1
     if type(path2) == str:
@@ -123,13 +124,15 @@ def ssim_metric(path1, path2, verbose=False, sample=None):
         max_ssim = -1
         max_index = -1
         for j, img1 in enumerate(dataset1):
-            rimg1, rimg2 = resize_to_smaller(Image.fromarray(img1), Image.fromarray(img2))
+            rimg1, rimg2 = resize_to_smaller(
+                Image.fromarray(img1), Image.fromarray(img2))
             s = ssim(rimg1, rimg2, data_range=255, channel_axis=2)
             if s > max_ssim:
                 max_ssim = s
                 max_index = j
         if verbose == True:
-            print(f"Image {i} in dataset 2 is most similar to image {max_index} in dataset 1 with SSIM: {max_ssim}")
+            print(
+                f"Image {i} in dataset 2 is most similar to image {max_index} in dataset 1 with SSIM: {max_ssim}")
         ssims.append(max_ssim)
 
     # Compute the average SSIM between the two datasets
@@ -160,7 +163,7 @@ def waterstein_distance_metric(path1, path2, batch_size=200, verbose=False, samp
         dataset2 = path2
 
     # # Flatten the datasets into 1-dimensional distributions
-    # dataset1_flat = np.array(dataset1).flatten() #again??? 
+    # dataset1_flat = np.array(dataset1).flatten() #again???
     dataset2_flat = np.array(dataset2).flatten()
 
     if sample != None and len(dataset1) > sample:
@@ -181,7 +184,8 @@ def waterstein_distance_metric(path1, path2, batch_size=200, verbose=False, samp
     # w_dist = wasserstein_distance(dataset1_flat, dataset2_flat) #wasserstein_distance_nd maybe?
 
     if verbose == True:
-        print(f"The Wasserstein distance between the two datasets is: {w_dist}")
+        print(
+            f"The Wasserstein distance between the two datasets is: {w_dist}")
     return w_dist
 
 

@@ -1,14 +1,13 @@
 import torch
 import os
-from torchvision.utils import save_image
-from progressive_gan import Generator
-import torchvision.utils as vutils
-import matplotlib.pyplot as plt
-from matplotlib.animation import ArtistAnimation, PillowWriter
-from IPython.display import HTML
 from math import log2
 import numpy as np
 import imageio
+from torchvision.utils import save_image
+
+from model.Generator import Generator
+
+import matplotlib.pyplot as plt
 
 
 def generate_examples(gen, steps, z_dim, device="cpu", n=100, path="saved_examples", epoch=None):
@@ -24,7 +23,8 @@ def generate_examples(gen, steps, z_dim, device="cpu", n=100, path="saved_exampl
             img = gen(noise, alpha, steps)
             if not os.path.exists(os.path.join(path, f"{folder}")):
                 os.makedirs(os.path.join(path, f"{folder}"))
-            save_image(img * 0.5 + 0.5, os.path.join(path, f"{folder}/img_{i}.png"))
+            save_image(img * 0.5 + 0.5,
+                       os.path.join(path, f"{folder}/img_{i}.png"))
     gen.train()
 
 
@@ -33,10 +33,11 @@ def _generater_sorter(x):
     key = x.split("_")[1].split(".")[0]
     if len(x.split("_")) < 3:
         # print(int(key+padding*"9"))
-        return int(key + padding * "9")  # one is required otherwise 0 is not considered when converting to int
+        # one is required otherwise 0 is not considered when converting to int
+        return int(key + padding * "9")
     else:
         key2 = x.split("_")[2].split(".")[0]
-        # print(int(key+key2+(padding-len(key2))*"9"))  
+        # print(int(key+key2+(padding-len(key2))*"9"))
         return int(key + (padding - len(
             key2)) * "0" + key2)  # one is required otherwise 0 is not considered when converting to int
 
@@ -54,13 +55,15 @@ def _create_grid(images, target_size, ncols=5):
     batch_size, channels, _, _ = images.shape
     nrows = (batch_size + ncols - 1) // ncols
     padded_images = _pad_images(images, target_size)
-    grid = padded_images.new_zeros((channels, target_size * nrows, target_size * ncols))
+    grid = padded_images.new_zeros(
+        (channels, target_size * nrows, target_size * ncols))
     for i in range(batch_size):
         row = i // ncols
         col = i % ncols
         start_y = row * target_size
         start_x = col * target_size
-        grid[:, start_y:start_y + target_size, start_x:start_x + target_size] = padded_images[i]
+        grid[:, start_y:start_y + target_size,
+             start_x:start_x + target_size] = padded_images[i]
     return grid
 
 
@@ -128,10 +131,12 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
 
         # save_image(img, os.path.join(path, sub_path, f"evolution_grid_{file_id}.png"))
         # ims = ([plt.imshow(np.transpose(img,(1,2,0)), animated=True)]) #TODO: maybe add epoch & size description?
-        save_image(grid, os.path.join(path, sub_path, f"evolution_grid_{file_id}.png"))
+        save_image(grid, os.path.join(path, sub_path,
+                   f"evolution_grid_{file_id}.png"))
         # ims.append([plt.imshow(np.transpose(grid,(1,2,0)), animated=True)]) #TODO: maybe add epoch & size description?
 
-        grid_np = grid.permute(1, 2, 0).cpu().numpy() * 255  # Convert to numpy and scale to [0, 255]
+        # Convert to numpy and scale to [0, 255]
+        grid_np = grid.permute(1, 2, 0).cpu().numpy() * 255
         grid_np = np.uint8(grid_np)  # Convert to uint8 for imageio
 
         frames.append(grid_np)  # Append the first frame
@@ -156,4 +161,5 @@ def generate_example_animation(path, z_dim, in_channels, channels_img, fps=3, de
 
 
 if __name__ == "__main__":
-    generate_example_animation("outputs/32_gens_of_runs_23_and_31_combined", 256, 256, 3, fps=3, display_animation=True)
+    generate_example_animation(
+        "outputs/32_gens_of_runs_23_and_31_combined", 256, 256, 3, fps=3, display_animation=True)
