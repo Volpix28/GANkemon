@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 
+
 class PixelNorm(nn.Module):
     def __init__(self):
         super(PixelNorm, self).__init__()

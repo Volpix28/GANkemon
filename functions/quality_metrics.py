@@ -72,7 +72,7 @@ def nn_metric(path1, path2, verbose=False):
         dataset2 = path2
 
     # Fit the NearestNeighbors model to dataset 1
-    nbrs = NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(dataset1)
+    nbrs = NearestNeighbors(n_neighbors=1, algorithm="ball_tree").fit(dataset1)
 
     # Find the nearest neighbor in dataset 1 for each image in dataset 2
     distances, indices = nbrs.kneighbors(dataset2)
@@ -185,7 +185,7 @@ def waterstein_distance_metric(path1, path2, batch_size=200, verbose=False, samp
     return w_dist
 
 
-def fid_metric(path1, path2, batch_size=32, dims=64, device='cpu'):
+def fid_metric(path1, path2, batch_size=32, dims=64, device="cpu"):
     """Calculate the Frechet Inception Distance (FID) between two datasets.
 
     Args:
@@ -193,7 +193,7 @@ def fid_metric(path1, path2, batch_size=32, dims=64, device='cpu'):
         path2 (str): Path to the generated Dataset
         batch_size (int, optional): _description_. Defaults to 32.
         dims (int, optional): 64: first max pooling features, 192: second max pooling features, 768: pre-aux classifier features, 2048: final average pooling features (this is the default). Defaults to 64.
-        device (str, optional): Device to which pytroch should delegate the calculations. Defaults to 'cuda'.
+        device (str, optional): Device to which pytroch should delegate the calculations. Defaults to "cuda".
 
     Returns:
         _type_: FID value
@@ -246,9 +246,9 @@ def fid_metric(path1, path2, batch_size=32, dims=64, device='cpu'):
     return fid_value
 
 
-if __name__ == '__main__':
-    dataset1 = './dataset/bulbapedia/transformed'
-    dataset2 = './outputs/23_first_try_bulbapedia_23_bulbapedia_256x256_e50/step5'
+if __name__ == "__main__":
+    dataset1 = "./dataset/bulbapedia/transformed"
+    dataset2 = "./outputs/23_first_try_bulbapedia_23_bulbapedia_256x256_e50/step5"
 
     print(nn_metric(dataset1, dataset2))
     print(ssim_metric(dataset1, dataset2))

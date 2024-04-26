@@ -16,7 +16,7 @@ def train(
         z_dim,
         lambda_gp,
         progressive_epochs,
-        device='cpu'
+        device="cpu"
 ):
     loop = tqdm(loader, leave=True)
     for batch_idx, (real, _) in enumerate(loop):
