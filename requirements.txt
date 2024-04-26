@@ -15,5 +15,3 @@ pyyaml
 scikit-learn
 grad-cam
 typing-extensions
-pylint
-autopep8
