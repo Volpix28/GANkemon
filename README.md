@@ -2,6 +2,11 @@
 
 This project aims at the synthetic generation of new Pokemon (GANkemon). The network used is a Progressive Generative Adversarial Network.
 
+Here are some examples of our results:
+
+![Mindflare](examples/2.png) ![Sandler](examples/9.png) ![GANkétron](examples/3.png)
+
+
 ## Datasets
 - [Pokemon - Image dataset](https://huggingface.co/datasets/huggan/pokemon) or [Alternative Link](https://www.kaggle.com/datasets/djilax/pkmn-image-dataset)
 
@@ -18,6 +23,8 @@ This project aims at the synthetic generation of new Pokemon (GANkemon). The net
 - [7,000 Labeled Pokemon](https://www.kaggle.com/datasets/lantian773030/pokemonclassification)
 
 - [Pokemon Generation One](https://www.kaggle.com/datasets/thedagger/pokemon-generation-one)
+
+### Final Datasets
 
 Base Dataset:
 
@@ -58,6 +65,10 @@ Scores:
     - better measurement for image diversity
     - FID between training and test set should be zero, since both real images (not valid for batches of train)
     - Lower FID values mean better image quality and diversity
+
+- Wasserstein Distance
+
+- SSIM Metric
 
 - Precision?
 - Recall?
