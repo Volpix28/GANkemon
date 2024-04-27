@@ -4,7 +4,11 @@ This project aims at the synthetic generation of new Pokemon (GANkemon). The net
 
 Here are some examples of our results:
 
-![Mindflare](examples/2.png) ![Sandler](examples/9.png) ![GANkétron](examples/3.png)
+<p align="center">
+    <img src="examples/2.png" alt="Mindflare">
+    <img src="examples/9.png" alt="Sandler">
+    <img src="examples/3.png" alt="GANkétron">
+</p>
 
 
 ## Datasets
